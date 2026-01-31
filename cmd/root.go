@@ -15,7 +15,8 @@ var rootCmd = &cobra.Command{
 	Short: "Trading212 portfolio checker",
 	Long:  "Connects to Trading212 and checks your portfolio from the terminal (TUI-ready, clean architecture).",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		if cmd.Name() == "init" {
+		// Commands that must work without prior setup / config file.
+		if cmd.Name() == "init" || cmd.Name() == "skill" {
 			return nil
 		}
 
@@ -39,6 +40,7 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(portfolioCmd)
+	rootCmd.AddCommand(skillCmd)
 }
 
 func GetConfig() *config.Config {
