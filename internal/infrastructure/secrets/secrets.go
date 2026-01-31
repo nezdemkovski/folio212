@@ -20,7 +20,8 @@ const Service = constants.AppName
 // Common secret keys used by this CLI.
 // Add more as needed (e.g., "github-token", "slack-webhook", etc.).
 const (
-	KeyAPIToken = "api-token"
+	KeyAPIToken            = "api-token"
+	KeyTrading212APISecret = "t212-api-secret"
 )
 
 // Source indicates where a secret was retrieved from.

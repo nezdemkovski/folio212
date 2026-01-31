@@ -16,8 +16,52 @@ A Trading212 portfolio checker CLI (TUI-ready) based on the architecture and ter
 ```bash
 go run . --help
 go run . init
-go run . run
+go run . portfolio
 ```
+
+## Install
+
+### Homebrew
+
+If you use Homebrew, you can install `folio212` from your tap:
+
+```bash
+brew tap nezdemkovski/homebrew-tap
+brew install folio212
+```
+
+Upgrade:
+
+```bash
+brew upgrade folio212
+```
+
+## Trading212 API key permissions
+
+When creating the Trading212 API key, you must enable at least:
+
+- **Account data**: used by `folio212 init` to validate credentials via `GET /equity/account/summary`
+- **Portfolio**: used by `folio212 portfolio` / `folio212 positions` via `GET /equity/positions`
+
+Optional (recommended if you want richer instrument info):
+
+- **Metadata**: used to fetch instrument metadata (type: stock vs ETF, names, etc.) via `GET /equity/metadata/instruments`
+
+## Generate Trading212 API keys
+
+The Trading212 Public API uses an **API Key + API Secret** (HTTP Basic auth). The secret is shown **only once** when you create the key, so store it safely.
+
+Steps (web or mobile):
+
+1. Open Trading212 → **Settings** → **API (Beta)**
+2. Accept the risk warning
+3. Tap **Generate API key**
+4. Choose permissions (at minimum: **Account data** + **Portfolio**)
+5. Save:
+   - **API Key** (we store the key id in `config.yaml`)
+   - **API Secret** (we store it in your OS keyring)
+
+Official guide: [Trading 212 API key](https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-Trading-212-API-key)
 
 ## Secrets management (3-tier storage)
 

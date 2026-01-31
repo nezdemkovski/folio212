@@ -12,15 +12,18 @@ import (
 )
 
 type Config struct {
-	Environment string `yaml:"environment"`
-	Workspace   string `yaml:"workspace,omitempty"`
+	Environment      string `mapstructure:"environment" yaml:"environment"`
+	Workspace        string `mapstructure:"workspace" yaml:"workspace,omitempty"`
+	Trading212Env    string `mapstructure:"trading212_env" yaml:"trading212_env,omitempty"` // "demo" or "live"
+	Trading212APIKey string `mapstructure:"trading212_api_key" yaml:"trading212_api_key,omitempty"`
 }
 
 var cfg *Config
 
 func Default() *Config {
 	return &Config{
-		Environment: "local",
+		Environment:   "local",
+		Trading212Env: "demo",
 	}
 }
 

@@ -1,6 +1,10 @@
 package ui
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"strings"
+
+	"github.com/charmbracelet/lipgloss"
+)
 
 // Layout provides a consistent centered layout for all screens.
 type Layout struct {
@@ -30,13 +34,28 @@ func (l Layout) ContentWidth() int {
 }
 
 func (l Layout) RenderLogo() string {
-	logoStyle := lipgloss.NewStyle().
-		Foreground(ColorPrimary).
-		Bold(true).
+	lines := lipgloss.NewStyle().
 		Width(l.ContentWidth()).
 		Align(lipgloss.Center)
 
-	return logoStyle.Render(AppLogo)
+	// Two-tone logo for a bit more depth.
+	raw := strings.Split(AppLogo, "\n")
+	if len(raw) == 0 {
+		return ""
+	}
+
+	cut := len(raw) / 2
+	var rendered []string
+	for i, line := range raw {
+		color := ColorPrimary
+		if i >= cut {
+			color = ColorHighlight
+		}
+		style := lines.Foreground(color).Bold(true)
+		rendered = append(rendered, style.Render(line))
+	}
+
+	return strings.Join(rendered, "\n")
 }
 
 func (l Layout) RenderSubtitle(text string) string {
