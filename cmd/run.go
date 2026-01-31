@@ -7,15 +7,15 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/mattn/go-isatty"
-	"github.com/nezdemkovski/cli-tool-template/internal/domain/run"
-	"github.com/nezdemkovski/cli-tool-template/internal/presentation"
+	"github.com/nezdemkovski/folio212/internal/domain/run"
+	"github.com/nezdemkovski/folio212/internal/presentation"
 	"github.com/spf13/cobra"
 )
 
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run a demo operation",
-	Long:  "Demonstrates clean layering: cmd → domain → presentation, with a Bubble Tea spinner and completion summary.",
+	Long:  "Connects to Trading212 and checks your portfolio (TUI-ready).",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg := GetConfig()
 

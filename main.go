@@ -1,6 +1,6 @@
 package main
 
-import "github.com/nezdemkovski/cli-tool-template/cmd"
+import "github.com/nezdemkovski/folio212/cmd"
 
 func main() {
 	cmd.Execute()

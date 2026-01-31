@@ -6,8 +6,8 @@ import (
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nezdemkovski/cli-tool-template/internal/domain/run"
-	"github.com/nezdemkovski/cli-tool-template/internal/shared/ui"
+	"github.com/nezdemkovski/folio212/internal/domain/run"
+	"github.com/nezdemkovski/folio212/internal/shared/ui"
 )
 
 type runStep int
@@ -127,7 +127,7 @@ func RenderRunCompletion(result *run.Result) string {
 
 	s.WriteString("\n")
 	s.WriteString(ui.Meta.Render("Commands:") + "\n")
-	s.WriteString(ui.Bullet("app run   - Run again") + "\n")
+	s.WriteString(ui.Bullet("folio212 run   - Run again") + "\n")
 
 	return ui.Container.Render(s.String())
 }

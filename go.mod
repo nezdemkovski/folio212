@@ -1,4 +1,4 @@
-module github.com/nezdemkovski/cli-tool-template
+module github.com/nezdemkovski/folio212
 
 go 1.25.5
 

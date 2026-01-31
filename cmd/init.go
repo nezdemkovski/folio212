@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nezdemkovski/cli-tool-template/internal/presentation"
+	"github.com/nezdemkovski/folio212/internal/presentation"
 	"github.com/spf13/cobra"
 )
 

@@ -1,6 +1,6 @@
-# cli-tool-template
+# folio212
 
-A minimal, TUI-ready Go CLI template based on the architecture and terminal styling patterns from `ndev`.
+A Trading212 portfolio checker CLI (TUI-ready) based on the architecture and terminal styling patterns from `ndev`.
 
 ## What you get
 
@@ -19,13 +19,6 @@ go run . init
 go run . run
 ```
 
-## Rename checklist (typical when bootstrapping a new CLI)
-
-- Update module path in `go.mod`
-- Rename `rootCmd.Use` in `cmd/root.go` (currently `app`)
-- Update `internal/shared/constants` (app name + config dir)
-- Update `.goreleaser.yaml` and `.github/workflows/release.yml`
-
 ## Secrets management (3-tier storage)
 
 Sensitive data (like API tokens) should **never** be stored in plain YAML config files. This template includes `internal/infrastructure/secrets` with a **3-tier fallback strategy** inspired by [GitHub CLI](https://github.com/cli/cli):
@@ -35,7 +28,7 @@ Sensitive data (like API tokens) should **never** be stored in plain YAML config
 When retrieving secrets, the following order is used:
 
 1. **Environment variables** (highest priority)
-   - Format: `APP_<KEY>` (e.g., `APP_API_TOKEN`)
+   - Format: `FOLIO212_<KEY>` (e.g., `FOLIO212_API_TOKEN`)
    - Works everywhere (desktop, Docker, CI/CD)
    - Explicit override mechanism
 2. **OS keyring** (secure desktop storage)
@@ -44,7 +37,7 @@ When retrieving secrets, the following order is used:
    - **Linux**: Secret Service (GNOME Keyring)
    - 3-second timeout to prevent hanging
 3. **Config file** (insecure fallback for headless environments)
-   - Stored in `~/.cli-tool-template/secrets.yml` with `0600` permissions
+   - Stored in `~/.folio212/secrets.yml` with `0600` permissions
    - Used when keyring is unavailable (Docker, headless servers)
    - A warning is shown when this fallback is used
 
@@ -60,7 +53,7 @@ When storing secrets:
 ### Example usage
 
 ```go
-import "github.com/nezdemkovski/cli-tool-template/internal/infrastructure/secrets"
+import "github.com/nezdemkovski/folio212/internal/infrastructure/secrets"
 
 // Store a secret (returns source + insecure flag)
 source, insecure, err := secrets.Set(secrets.KeyAPIToken, "sk-abc123")
@@ -90,11 +83,11 @@ For headless environments where the OS keyring is unavailable:
 
 ```bash
 # Preferred: Use environment variables
-export APP_API_TOKEN="your-token-here"
-./app run
+export FOLIO212_API_TOKEN="your-token-here"
+./folio212 run
 
 # Alternative: Let it fall back to file storage (insecure)
-./app init  # Will warn about insecure storage
+./folio212 init  # Will warn about insecure storage
 ```
 
 ### Why this matters

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nezdemkovski/cli-tool-template/internal/shared/constants"
+	"github.com/nezdemkovski/folio212/internal/shared/constants"
 	"github.com/zalando/go-keyring"
 	"gopkg.in/yaml.v3"
 )
@@ -43,7 +43,7 @@ func (e *TimeoutError) Error() string {
 }
 
 // Get retrieves a secret using the following priority:
-// 1. Environment variable (APP_<KEY> format, e.g., APP_API_TOKEN)
+// 1. Environment variable (FOLIO212_<KEY> format, e.g., FOLIO212_API_TOKEN)
 // 2. OS keyring (with 3-second timeout)
 // 3. Config file (insecure fallback for headless environments)
 //
@@ -256,7 +256,7 @@ func deleteFromFile(key string) error {
 }
 
 // toEnvVar converts a secret key to environment variable format.
-// e.g., "api-token" -> "APP_API_TOKEN"
+// e.g., "api-token" -> "FOLIO212_API_TOKEN"
 func toEnvVar(key string) string {
 	// Convert to uppercase and replace hyphens with underscores
 	envKey := strings.ToUpper(strings.ReplaceAll(key, "-", "_"))

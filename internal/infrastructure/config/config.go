@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/nezdemkovski/cli-tool-template/internal/shared/constants"
-	"github.com/nezdemkovski/cli-tool-template/internal/shared/validation"
+	"github.com/nezdemkovski/folio212/internal/shared/constants"
+	"github.com/nezdemkovski/folio212/internal/shared/validation"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )

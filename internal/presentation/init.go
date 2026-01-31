@@ -6,10 +6,10 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
-	"github.com/nezdemkovski/cli-tool-template/internal/infrastructure/config"
-	"github.com/nezdemkovski/cli-tool-template/internal/infrastructure/secrets"
-	"github.com/nezdemkovski/cli-tool-template/internal/shared/ui"
-	"github.com/nezdemkovski/cli-tool-template/internal/shared/validation"
+	"github.com/nezdemkovski/folio212/internal/infrastructure/config"
+	"github.com/nezdemkovski/folio212/internal/infrastructure/secrets"
+	"github.com/nezdemkovski/folio212/internal/shared/ui"
+	"github.com/nezdemkovski/folio212/internal/shared/validation"
 )
 
 type InitModel struct {
@@ -186,7 +186,7 @@ func RenderInitCompletion(cfg *config.Config) string {
 
 	s.WriteString("\n")
 	s.WriteString(ui.Meta.Render("Next steps:") + "\n")
-	s.WriteString(ui.Bullet("app run  - Run a demo operation") + "\n")
+	s.WriteString(ui.Bullet("folio212 run  - Run a demo operation") + "\n")
 
 	return ui.Container.Render(s.String())
 }

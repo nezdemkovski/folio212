@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/nezdemkovski/cli-tool-template/internal/infrastructure/config"
+	"github.com/nezdemkovski/folio212/internal/infrastructure/config"
 )
 
 type Manager struct {

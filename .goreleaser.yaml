@@ -1,13 +1,13 @@
 version: 2
 
-project_name: cli-tool-template
+project_name: folio212
 
 before:
   hooks:
     - go mod tidy
 
 builds:
-  - binary: app
+  - binary: folio212
     main: ./main.go
     goos:
       - linux
@@ -37,13 +37,13 @@ release:
 # - Create a tap repo (e.g. github.com/<org>/homebrew-tap)
 # - Add a GitHub Actions secret: RELEASE_GITHUB_TOKEN (a PAT with repo access to the tap repo)
 brews:
-  - name: app
+  - name: folio212
     repository:
       owner: nezdemkovski
       name: homebrew-tap
       token: "{{ .Env.RELEASE_GITHUB_TOKEN }}"
     directory: Formula
-    homepage: https://github.com/nezdemkovski/app
-    description: "CLI tool (template placeholder)"
+    homepage: https://github.com/nezdemkovski/folio212
+    description: "Trading212 portfolio checker"
     license: MIT
 

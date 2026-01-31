@@ -4,15 +4,15 @@ This file provides guidance for Claude Code when working with this repository.
 
 ## Project Overview
 
-A minimal, TUI-ready Go CLI template using Cobra for commands and Bubble Tea for terminal UI. Based on clean architecture patterns from `ndev`.
+A Trading212 portfolio checker CLI using Cobra for commands and Bubble Tea for terminal UI. Based on clean architecture patterns from `ndev`.
 
-**Module**: `github.com/nezdemkovski/cli-tool-template`
+**Module**: `github.com/nezdemkovski/folio212`
 **Go version**: 1.25.5
 
 ## Architecture
 
 ```
-cli-tool-template/
+folio212/
 ├── cmd/                          # Thin orchestration layer (Cobra commands)
 │   ├── root.go                   # Global flags, config loading via PersistentPreRunE
 │   ├── init.go                   # Launches init TUI
@@ -56,24 +56,26 @@ cmd → presentation → domain → infrastructure → shared
 ## Build & Run
 
 ```bash
-go build -o app .
-./app --help
-./app init      # Interactive setup (TUI)
-./app run       # Main operation (TUI)
+go build -o folio212 .
+./folio212 --help
+./folio212 init      # Interactive setup (TUI)
+./folio212 run       # Main operation (TUI)
 ```
 
 ## Secrets Management (3-tier)
 
 Priority order for **retrieval**:
-1. Environment variables: `APP_<KEY>` (e.g., `APP_API_TOKEN`)
+
+1. Environment variables: `FOLIO212_<KEY>` (e.g., `FOLIO212_API_TOKEN`)
 2. OS keyring (macOS Keychain, Windows Credential Manager, Linux Secret Service)
-3. Config file fallback: `~/.cli-tool-template/secrets.yml` (insecure, with warnings)
+3. Config file fallback: `~/.folio212/secrets.yml` (insecure, with warnings)
 
 Keyring operations have a 3-second timeout to prevent hanging.
 
 ## UI Theme (Professional)
 
 **Colors** (ANSI 256, muted):
+
 - Primary: 111 (soft cyan) - titles, active focus
 - Secondary: 250 (light gray) - labels, headers
 - Neutral: 245 (muted gray) - metadata
@@ -83,9 +85,11 @@ Keyring operations have a 3-second timeout to prevent hanging.
 - Highlight: 147 (soft purple) - selection
 
 **Status symbols** (no emojis):
-- Done: `•`  Active: `→`  Running: `◉`  Pending: `○`  Warning: `!`  Error: `✗`
+
+- Done: `•` Active: `→` Running: `◉` Pending: `○` Warning: `!` Error: `✗`
 
 **Rules**:
+
 - No emojis in UI output
 - All styles centralized in `internal/shared/ui/style.go`
 - No inline styling in rendering code
@@ -100,7 +104,7 @@ Keyring operations have a 3-second timeout to prevent hanging.
 ## Renaming for New Project
 
 1. Update module path in `go.mod`
-2. Rename `rootCmd.Use` in `cmd/root.go` (currently `app`)
+2. Rename `rootCmd.Use` in `cmd/root.go` (currently `folio212`)
 3. Update `internal/shared/constants` (app name + config dir)
 4. Update `.goreleaser.yaml` and `.github/workflows/release.yml`
 
