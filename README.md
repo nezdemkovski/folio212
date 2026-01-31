@@ -1,160 +1,154 @@
 # folio212
 
-A Trading212 portfolio checker CLI (TUI-ready) based on the architecture and terminal styling patterns from `ndev`.
+Check your Trading212 portfolio from the terminal.
 
-## What you get
+## What it does
 
-- **Cobra** command layer (`cmd/`) that stays intentionally thin.
-- **Clean layers** under `internal/`:
-  - `internal/domain/` business logic (no UI dependencies)
-  - `internal/presentation/` Bubble Tea models + rendering
-  - `internal/infrastructure/` config persistence (Viper + YAML) + secrets (OS keyring)
-  - `internal/shared/` constants, validation, and centralized `ui` styling
+- **Quick portfolio overview** - See all your holdings, allocations, and performance in one view
+- **Secure by default** - API secrets stored in your OS keyring (macOS Keychain, Windows Credential Manager, Linux Secret Service)
+- **JSON export** - Get your data in JSON format for further analysis
+- **Works everywhere** - Desktop, servers, Docker with environment variable fallback
 
 ## Quick start
 
 ```bash
-go run . --help
-go run . init
-go run . portfolio
+# Install
+go install github.com/nezdemkovski/folio212@latest
+
+# Or use Homebrew
+brew tap nezdemkovski/homebrew-tap
+brew install folio212
+
+# Setup (interactive)
+folio212 init
+
+# Check your portfolio
+folio212 portfolio
+
+# Export as JSON
+folio212 portfolio --json
 ```
 
 ## Install
 
 ### Homebrew
 
-If you use Homebrew, you can install `folio212` from your tap:
-
 ```bash
 brew tap nezdemkovski/homebrew-tap
 brew install folio212
 ```
 
-Upgrade:
+Upgrade: `brew upgrade folio212`
+
+### From source
 
 ```bash
-brew upgrade folio212
+go install github.com/nezdemkovski/folio212@latest
 ```
 
-## Trading212 API key permissions
+## Setup
 
-When creating the Trading212 API key, you must enable at least:
+You need a Trading212 API key to use this tool.
 
-- **Account data**: used by `folio212 init` to validate credentials via `GET /equity/account/summary`
-- **Portfolio**: used by `folio212 portfolio` / `folio212 positions` via `GET /equity/positions`
-
-Optional (recommended if you want richer instrument info):
-
-- **Metadata**: used to fetch instrument metadata (type: stock vs ETF, names, etc.) via `GET /equity/metadata/instruments`
-
-## Generate Trading212 API keys
-
-The Trading212 Public API uses an **API Key + API Secret** (HTTP Basic auth). The secret is shown **only once** when you create the key, so store it safely.
-
-Steps (web or mobile):
+### 1. Generate API keys
 
 1. Open Trading212 → **Settings** → **API (Beta)**
 2. Accept the risk warning
 3. Tap **Generate API key**
-4. Choose permissions (at minimum: **Account data** + **Portfolio**)
-5. Save:
-   - **API Key** (we store the key id in `config.yaml`)
-   - **API Secret** (we store it in your OS keyring)
+4. Enable permissions: **Account data** + **Portfolio**
+5. Save both the **API Key** and **API Secret** (secret is shown only once!)
 
-Official guide: [Trading 212 API key](https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-Trading-212-API-key)
+[Official guide](https://helpcentre.trading212.com/hc/en-us/articles/14584770928157-Trading-212-API-key)
 
-## Secrets management (3-tier storage)
+### 2. Configure folio212
 
-Sensitive data (like API tokens) should **never** be stored in plain YAML config files. This template includes `internal/infrastructure/secrets` with a **3-tier fallback strategy** inspired by [GitHub CLI](https://github.com/cli/cli):
+Run the interactive setup:
 
-### Storage priority (Get)
-
-When retrieving secrets, the following order is used:
-
-1. **Environment variables** (highest priority)
-   - Format: `FOLIO212_<KEY>` (e.g., `FOLIO212_API_TOKEN`)
-   - Works everywhere (desktop, Docker, CI/CD)
-   - Explicit override mechanism
-2. **OS keyring** (secure desktop storage)
-   - **macOS**: Keychain
-   - **Windows**: Credential Manager
-   - **Linux**: Secret Service (GNOME Keyring)
-   - 3-second timeout to prevent hanging
-3. **Config file** (insecure fallback for headless environments)
-   - Stored in `~/.folio212/secrets.yml` with `0600` permissions
-   - Used when keyring is unavailable (Docker, headless servers)
-   - A warning is shown when this fallback is used
-
-### Storage priority (Set)
-
-When storing secrets:
-
-1. **OS keyring** (attempted first on desktop environments)
-2. **Config file fallback** (used when keyring unavailable/times out)
-   - Returns `insecure=true` flag when this happens
-   - UI shows warning: "⚠ API token stored in config file (insecure)"
-
-### Example usage
-
-```go
-import "github.com/nezdemkovski/folio212/internal/infrastructure/secrets"
-
-// Store a secret (returns source + insecure flag)
-source, insecure, err := secrets.Set(secrets.KeyAPIToken, "sk-abc123")
-if err != nil {
-    // handle error
-}
-if insecure {
-    fmt.Println("Warning: Using insecure file storage (keyring unavailable)")
-}
-
-// Retrieve a secret (returns value + source + error)
-token, source, err := secrets.Get(secrets.KeyAPIToken)
-if err != nil {
-    // handle error
-}
-fmt.Printf("Token loaded from: %s\n", source) // "environment", "keyring", "config_file"
-
-// Delete a secret (removes from all locations)
-if err := secrets.Delete(secrets.KeyAPIToken); err != nil {
-    // handle error
-}
+```bash
+folio212 init
 ```
+
+This will:
+- Ask for your API key and secret
+- Validate the credentials
+- Store config in `~/.folio212/config.yaml`
+- Store secret securely in your OS keyring
+
+## Usage
+
+### Check portfolio
+
+```bash
+folio212 portfolio
+```
+
+Output includes:
+- Holdings value and pie cash
+- Performance metrics (return, PnL, FX impact)
+- Account total breakdown
+- Allocation percentages
+- Individual position details
+
+### JSON export
+
+```bash
+folio212 portfolio --json
+folio212 portfolio --json --include-raw  # Include raw API data
+```
+
+### Period filtering
+
+```bash
+folio212 portfolio --from 2024-01-01 --to 2024-12-31
+```
+
+## Security
+
+### How secrets are stored
+
+Your API secret is stored using a 3-tier approach:
+
+1. **OS keyring** (default on desktop)
+   - macOS: Keychain
+   - Windows: Credential Manager
+   - Linux: Secret Service
+
+2. **Environment variables** (for servers/Docker)
+   ```bash
+   export FOLIO212_T212_API_SECRET="your-secret"
+   ```
+
+3. **Config file** (fallback only)
+   - Stored in `~/.folio212/secrets.yml` with `0600` permissions
+   - Shows warning when used
 
 ### Server/Docker usage
 
-For headless environments where the OS keyring is unavailable:
+For headless environments without a keyring:
 
 ```bash
-# Preferred: Use environment variables
-export FOLIO212_API_TOKEN="your-token-here"
-./folio212 portfolio
+# Recommended: Use environment variable
+export FOLIO212_T212_API_SECRET="your-secret"
+folio212 portfolio
 
-# Alternative: Let it fall back to file storage (insecure)
-./folio212 init  # Will warn about insecure storage
+# Or use the --env flag pattern
+FOLIO212_T212_API_SECRET="your-secret" folio212 portfolio
 ```
 
-### Why this matters
+## API Permissions Required
 
-- **Desktop**: Secrets stored securely in OS keyring (protected by system authentication)
-- **Servers/Docker**: Explicit environment variables (standard practice in 2026)
-- **Emergency fallback**: File storage ensures CLI works everywhere, with clear warnings
+- **Account data**: Required for `folio212 init` to validate credentials
+- **Portfolio**: Required for `folio212 portfolio` to fetch positions
+- **Metadata** (optional): For richer instrument information
 
-## Homebrew publishing (optional)
+## For Developers
 
-This template supports publishing a formula to a tap repo via GoReleaser (`brews:` in `.goreleaser.yaml`).
+See [CLAUDE.md](CLAUDE.md) for:
+- Architecture overview
+- Code organization
+- Adding new commands
+- Layer rules and dependency directions
 
-- Create a tap repository: `homebrew-tap`
-- Add a GitHub Actions secret: `RELEASE_GITHUB_TOKEN` (PAT with repo access to the tap repo)
-- Update `.goreleaser.yaml` placeholders:
-  - `brews[0].name`
-  - `brews[0].repository.owner` / `brews[0].repository.name`
-  - `homepage`, `description`, `license`
+## License
 
-## Adding a new command (pattern)
-
-1. Add `cmd/mycmd.go` (argument parsing + orchestration)
-2. Add `internal/domain/myfeature/` (business logic + result structs)
-3. Add `internal/presentation/mycmd.go` (Bubble Tea model + `Render*Completion`)
-
-No business logic should live in `cmd/` or `internal/presentation/`.
+MIT

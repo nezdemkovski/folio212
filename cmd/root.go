@@ -13,7 +13,7 @@ var cfg *config.Config
 var rootCmd = &cobra.Command{
 	Use:   "folio212",
 	Short: "Trading212 portfolio checker",
-	Long:  "Connects to Trading212 and checks your portfolio from the terminal (TUI-ready, clean architecture).",
+	Long:  "Connects to Trading212 and checks your portfolio from the terminal.",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// Commands that must work without prior setup / config file.
 		if cmd.Name() == "init" || cmd.Name() == "skill" {

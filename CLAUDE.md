@@ -15,14 +15,27 @@ A Trading212 portfolio checker CLI using Cobra for commands and Bubble Tea for t
 folio212/
 ├── cmd/                          # Thin orchestration layer (Cobra commands)
 │   ├── root.go                   # Global flags, config loading via PersistentPreRunE
-│   ├── init.go                   # Launches init TUI
+│   ├── init.go                   # Launches init TUI (orchestration only)
+│   ├── portfolio.go              # Portfolio command orchestration (~60 lines)
+│   └── skill.go                  # Skill command
 ├── internal/
 │   ├── domain/                   # Pure business logic (NO UI dependencies)
+│   │   └── portfolio/            # Portfolio domain
+│   │       ├── types.go          # Data structures (JSON schema)
+│   │       ├── calculator.go     # Pure math functions (testable)
+│   │       ├── service.go        # Business orchestration
+│   │       └── errors.go         # Domain error types
 │   ├── infrastructure/           # External systems
 │   │   ├── config/config.go      # Viper + YAML persistence
-│   │   └── secrets/secrets.go    # 3-tier: env → keyring → file fallback
-│   ├── presentation/             # UI layer (Bubble Tea models)
-│   │   ├── init.go               # Init command TUI
+│   │   ├── secrets/secrets.go    # 3-tier: env → keyring → file fallback
+│   │   └── trading212/           # API client
+│   │       ├── client.go         # HTTP client
+│   │       ├── types.go          # API response types
+│   │       └── errors.go         # HTTP error handling
+│   ├── presentation/             # UI layer (all user-facing output)
+│   │   ├── init.go               # Init command TUI (Bubble Tea)
+│   │   ├── portfolio.go          # Portfolio text rendering
+│   │   └── errors.go             # Error humanization (UI messages)
 │   └── shared/                   # Pure utilities (no internal dependencies)
 │       ├── constants/app.go      # App name, config dir
 │       ├── ui/                   # Centralized Lipgloss styling
@@ -36,19 +49,55 @@ folio212/
 
 ### Layer Rules (Strict)
 
-1. **cmd/** - Orchestration only. No business logic, no UI rendering, no direct styling.
-2. **domain/** - Pure business logic. No Bubble Tea imports, no UI dependencies.
-3. **presentation/** - UI rendering. Delegates to domain for logic, uses `shared/ui` for styling.
-4. **infrastructure/** - External systems only (config files, keyring, network).
-5. **shared/** - Zero dependencies on other internal packages.
+1. **cmd/** - **Orchestration only** (~60-100 lines per command)
+   - Parse flags and arguments
+   - Load config and secrets
+   - Delegate to domain layer for business logic
+   - Delegate to presentation layer for UI rendering
+   - **NO business logic, NO calculations, NO data transformations**
+
+2. **domain/** - **Pure business logic** (NO UI dependencies)
+   - **types.go**: Data structures and JSON schemas
+   - **calculator.go**: Pure functions (math, aggregations) - easily testable
+   - **service.go**: Business orchestration, reconciliations, workflows
+   - **errors.go**: Domain-specific error types
+   - **NO Bubble Tea imports, NO fmt.Print, NO direct infrastructure calls**
+
+3. **presentation/** - **All user-facing output**
+   - Bubble Tea models and TUI components
+   - Text rendering and formatting
+   - Error humanization (converting errors to user-friendly messages)
+   - Uses `shared/ui` for styling
+   - **NO business logic, delegates to domain layer**
+
+4. **infrastructure/** - **External systems only**
+   - Config persistence (Viper + YAML)
+   - Secrets management (OS keyring + file fallback)
+   - API clients (HTTP clients with timeout and retry logic)
+   - **NO business logic, NO UI code**
+
+5. **shared/** - **Zero dependencies on other internal packages**
+   - Constants, validation functions
+   - UI styling primitives (Lipgloss)
+   - Generic utilities
+   - **Only depends on stdlib and external libraries**
 
 ### Dependency Direction
 
 ```
-cmd → presentation → domain → infrastructure → shared
-                ↘            ↗
-                  infrastructure
+cmd → domain → infrastructure → shared
+  ↓      ↘
+presentation
+  ↓
+shared
 ```
+
+**Rules:**
+- `cmd` imports: `domain`, `presentation`, `infrastructure`
+- `presentation` imports: `domain`, `shared`
+- `domain` imports: `infrastructure` (for API clients), `shared`
+- `infrastructure` imports: `shared`
+- `shared` imports: **nothing internal**
 
 ## Build & Run
 
