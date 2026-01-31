@@ -1,0 +1,123 @@
+# cli-tool-template
+
+A minimal, TUI-ready Go CLI template based on the architecture and terminal styling patterns from `ndev`.
+
+## What you get
+
+- **Cobra** command layer (`cmd/`) that stays intentionally thin.
+- **Clean layers** under `internal/`:
+  - `internal/domain/` business logic (no UI dependencies)
+  - `internal/presentation/` Bubble Tea models + rendering
+  - `internal/infrastructure/` config persistence (Viper + YAML) + secrets (OS keyring)
+  - `internal/shared/` constants, validation, and centralized `ui` styling
+
+## Quick start
+
+```bash
+go run . --help
+go run . init
+go run . run
+```
+
+## Rename checklist (typical when bootstrapping a new CLI)
+
+- Update module path in `go.mod`
+- Rename `rootCmd.Use` in `cmd/root.go` (currently `app`)
+- Update `internal/shared/constants` (app name + config dir)
+- Update `.goreleaser.yaml` and `.github/workflows/release.yml`
+
+## Secrets management (3-tier storage)
+
+Sensitive data (like API tokens) should **never** be stored in plain YAML config files. This template includes `internal/infrastructure/secrets` with a **3-tier fallback strategy** inspired by [GitHub CLI](https://github.com/cli/cli):
+
+### Storage priority (Get)
+
+When retrieving secrets, the following order is used:
+
+1. **Environment variables** (highest priority)
+   - Format: `APP_<KEY>` (e.g., `APP_API_TOKEN`)
+   - Works everywhere (desktop, Docker, CI/CD)
+   - Explicit override mechanism
+2. **OS keyring** (secure desktop storage)
+   - **macOS**: Keychain
+   - **Windows**: Credential Manager
+   - **Linux**: Secret Service (GNOME Keyring)
+   - 3-second timeout to prevent hanging
+3. **Config file** (insecure fallback for headless environments)
+   - Stored in `~/.cli-tool-template/secrets.yml` with `0600` permissions
+   - Used when keyring is unavailable (Docker, headless servers)
+   - A warning is shown when this fallback is used
+
+### Storage priority (Set)
+
+When storing secrets:
+
+1. **OS keyring** (attempted first on desktop environments)
+2. **Config file fallback** (used when keyring unavailable/times out)
+   - Returns `insecure=true` flag when this happens
+   - UI shows warning: "⚠ API token stored in config file (insecure)"
+
+### Example usage
+
+```go
+import "github.com/nezdemkovski/cli-tool-template/internal/infrastructure/secrets"
+
+// Store a secret (returns source + insecure flag)
+source, insecure, err := secrets.Set(secrets.KeyAPIToken, "sk-abc123")
+if err != nil {
+    // handle error
+}
+if insecure {
+    fmt.Println("Warning: Using insecure file storage (keyring unavailable)")
+}
+
+// Retrieve a secret (returns value + source + error)
+token, source, err := secrets.Get(secrets.KeyAPIToken)
+if err != nil {
+    // handle error
+}
+fmt.Printf("Token loaded from: %s\n", source) // "environment", "keyring", "config_file"
+
+// Delete a secret (removes from all locations)
+if err := secrets.Delete(secrets.KeyAPIToken); err != nil {
+    // handle error
+}
+```
+
+### Server/Docker usage
+
+For headless environments where the OS keyring is unavailable:
+
+```bash
+# Preferred: Use environment variables
+export APP_API_TOKEN="your-token-here"
+./app run
+
+# Alternative: Let it fall back to file storage (insecure)
+./app init  # Will warn about insecure storage
+```
+
+### Why this matters
+
+- **Desktop**: Secrets stored securely in OS keyring (protected by system authentication)
+- **Servers/Docker**: Explicit environment variables (standard practice in 2026)
+- **Emergency fallback**: File storage ensures CLI works everywhere, with clear warnings
+
+## Homebrew publishing (optional)
+
+This template supports publishing a formula to a tap repo via GoReleaser (`brews:` in `.goreleaser.yaml`).
+
+- Create a tap repository: `homebrew-tap`
+- Add a GitHub Actions secret: `RELEASE_GITHUB_TOKEN` (PAT with repo access to the tap repo)
+- Update `.goreleaser.yaml` placeholders:
+  - `brews[0].name`
+  - `brews[0].repository.owner` / `brews[0].repository.name`
+  - `homepage`, `description`, `license`
+
+## Adding a new command (pattern)
+
+1. Add `cmd/mycmd.go` (argument parsing + orchestration)
+2. Add `internal/domain/myfeature/` (business logic + result structs)
+3. Add `internal/presentation/mycmd.go` (Bubble Tea model + `Render*Completion`)
+
+No business logic should live in `cmd/` or `internal/presentation/`.

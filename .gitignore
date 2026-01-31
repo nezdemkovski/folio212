@@ -1,0 +1,25 @@
+# Binaries
+app
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Dist directory
+dist/
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# macOS
+.DS_Store

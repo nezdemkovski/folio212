@@ -1,0 +1,49 @@
+version: 2
+
+project_name: cli-tool-template
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - binary: app
+    main: ./main.go
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: checksums.txt
+
+release:
+  draft: false
+  prerelease: auto
+
+# Optional: publish a Homebrew formula into a tap repository.
+# This matches the pattern used in steamdensity.
+#
+# Requirements:
+# - Create a tap repo (e.g. github.com/<org>/homebrew-tap)
+# - Add a GitHub Actions secret: RELEASE_GITHUB_TOKEN (a PAT with repo access to the tap repo)
+brews:
+  - name: app
+    repository:
+      owner: nezdemkovski
+      name: homebrew-tap
+      token: "{{ .Env.RELEASE_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: https://github.com/nezdemkovski/app
+    description: "CLI tool (template placeholder)"
+    license: MIT
+
