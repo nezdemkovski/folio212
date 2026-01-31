@@ -38,7 +38,6 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(initCmd)
-	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(portfolioCmd)
 	rootCmd.AddCommand(skillCmd)
 }

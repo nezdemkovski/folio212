@@ -56,11 +56,6 @@ Commands
     - Must provide both; format must be ` + "`YYYY-MM-DD`" + `
     - ` + "`--to`" + ` must be >= ` + "`--from`" + `
 
-` + "`folio212 run`" + `
-
-- Demo operation (TUI-ready). If not attached to a terminal (non-TTY), it prints a plain completion summary.
-- Usage: ` + "`folio212 run`" + `
-
 Trading212 API key permissions
 
 - Required: ` + "**Account data**" + `, ` + "**Portfolio**" + `

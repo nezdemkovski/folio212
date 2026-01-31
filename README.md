@@ -128,7 +128,7 @@ For headless environments where the OS keyring is unavailable:
 ```bash
 # Preferred: Use environment variables
 export FOLIO212_API_TOKEN="your-token-here"
-./folio212 run
+./folio212 portfolio
 
 # Alternative: Let it fall back to file storage (insecure)
 ./folio212 init  # Will warn about insecure storage

@@ -323,7 +323,7 @@ func RenderInitCompletion(cfg *config.Config, summary *trading212.AccountSummary
 
 	s.WriteString("\n")
 	s.WriteString(ui.Meta.Render("Next steps:") + "\n")
-	s.WriteString(ui.Bullet("folio212 run  - Fetch portfolio data") + "\n")
+	s.WriteString(ui.Bullet("folio212 portfolio  - Show current holdings") + "\n")
 
 	return ui.Container.Render(s.String())
 }

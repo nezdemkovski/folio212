@@ -16,16 +16,13 @@ folio212/
 ├── cmd/                          # Thin orchestration layer (Cobra commands)
 │   ├── root.go                   # Global flags, config loading via PersistentPreRunE
 │   ├── init.go                   # Launches init TUI
-│   └── run.go                    # TTY detection, launches run TUI
 ├── internal/
 │   ├── domain/                   # Pure business logic (NO UI dependencies)
-│   │   └── run/manager.go        # Context-aware operations, returns structured results
 │   ├── infrastructure/           # External systems
 │   │   ├── config/config.go      # Viper + YAML persistence
 │   │   └── secrets/secrets.go    # 3-tier: env → keyring → file fallback
 │   ├── presentation/             # UI layer (Bubble Tea models)
 │   │   ├── init.go               # Init command TUI
-│   │   └── run.go                # Run command TUI
 │   └── shared/                   # Pure utilities (no internal dependencies)
 │       ├── constants/app.go      # App name, config dir
 │       ├── ui/                   # Centralized Lipgloss styling
@@ -59,7 +56,7 @@ cmd → presentation → domain → infrastructure → shared
 go build -o folio212 .
 ./folio212 --help
 ./folio212 init      # Interactive setup (TUI)
-./folio212 run       # Main operation (TUI)
+./folio212 portfolio # Show current holdings
 ```
 
 ## Secrets Management (3-tier)
