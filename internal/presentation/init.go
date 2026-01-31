@@ -260,7 +260,11 @@ func humanizeTrading212AuthError(err error) error {
 	return err
 }
 
-func RenderInitCompletion(cfg *config.Config, summary *trading212.AccountSummary, validationWarning error) string {
+func (m *InitModel) SecretSource() secrets.Source {
+	return m.secretSource
+}
+
+func RenderInitCompletion(cfg *config.Config, summary *trading212.AccountSummary, validationWarning error, secretSource secrets.Source) string {
 	var s strings.Builder
 
 	s.WriteString(ui.SuccessStyle.Render(ui.SymbolDone) + " " + ui.Title.Render("Initialization Complete"))
@@ -301,12 +305,11 @@ func RenderInitCompletion(cfg *config.Config, summary *trading212.AccountSummary
 		s.WriteString("\n")
 	}
 
-	secret, source, _ := secrets.Get(secrets.KeyTrading212APISecret)
-	if secret != "" {
+	if secretSource != secrets.SourceNone {
 		s.WriteString("\n")
 		s.WriteString(ui.SectionHeader("Secrets"))
 		s.WriteString("\n")
-		switch source {
+		switch secretSource {
 		case secrets.SourceKeyring:
 			s.WriteString(ui.Bullet("Trading212 API secret stored securely in OS keyring"))
 		case secrets.SourceFile:

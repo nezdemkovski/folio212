@@ -27,7 +27,7 @@ var initCmd = &cobra.Command{
 			if m.Error() != nil {
 				return m.Error()
 			}
-			fmt.Println(presentation.RenderInitCompletion(m.Config(), m.AccountSummary(), m.ValidationWarning()))
+			fmt.Println(presentation.RenderInitCompletion(m.Config(), m.AccountSummary(), m.ValidationWarning(), m.SecretSource()))
 		}
 
 		return nil
