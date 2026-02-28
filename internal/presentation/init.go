@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/huh"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/huh/v2"
 	"github.com/nezdemkovski/folio212/internal/infrastructure/config"
 	"github.com/nezdemkovski/folio212/internal/infrastructure/secrets"
 	"github.com/nezdemkovski/folio212/internal/infrastructure/trading212"
@@ -109,7 +109,7 @@ func NewInitModel() *InitModel {
 					return validation.ValidateNonEmpty("trading212 api secret", strings.TrimSpace(m.t212Secret))
 				}),
 		),
-	).WithTheme(huh.ThemeBase()).
+	).WithTheme(huh.ThemeFunc(huh.ThemeBase)).
 		WithShowHelp(true)
 
 	return m
@@ -125,8 +125,8 @@ func (m *InitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 		m.layout.UpdateDimensions(msg.Width, msg.Height)
-	case tea.KeyMsg:
-		if msg.Type == tea.KeyCtrlC {
+	case tea.KeyPressMsg:
+		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
 	}
@@ -213,9 +213,11 @@ func (m *InitModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *InitModel) View() string {
+func (m *InitModel) View() tea.View {
 	if m.width == 0 || m.height == 0 {
-		return "Loading..."
+		v := tea.NewView("Loading...")
+		v.AltScreen = true
+		return v
 	}
 
 	help := strings.Join([]string{
@@ -232,7 +234,9 @@ func (m *InitModel) View() string {
 		m.layout.RenderBody(ui.Meta.Render(help) + "\n\n" + m.form.View()),
 	}
 
-	return m.layout.RenderCentered(sections...)
+	v := tea.NewView(m.layout.RenderCentered(sections...))
+	v.AltScreen = true
+	return v
 }
 
 func (m *InitModel) Error() error {
@@ -278,7 +282,7 @@ func RenderInitCompletion(cfg *config.Config, summary *trading212.AccountSummary
 			s.WriteString("\n")
 		}
 		if cfg.Trading212APIKey != "" {
-			s.WriteString(ui.Bullet(fmt.Sprintf("trading212 api key: %s", cfg.Trading212APIKey)))
+			s.WriteString(ui.Bullet(fmt.Sprintf("trading212 api key: %s", maskString(cfg.Trading212APIKey, 4))))
 			s.WriteString("\n")
 		}
 	}
@@ -329,4 +333,13 @@ func RenderInitCompletion(cfg *config.Config, summary *trading212.AccountSummary
 	s.WriteString(ui.Bullet("folio212 portfolio  - Show current holdings") + "\n")
 
 	return ui.Container.Render(s.String())
+}
+
+// maskString masks a string, showing only the first and last 'visible' characters.
+// If the string is shorter than 2*visible+3, it returns "***".
+func maskString(s string, visible int) string {
+	if len(s) <= 2*visible+3 {
+		return "***"
+	}
+	return s[:visible] + "..." + s[len(s)-visible:]
 }

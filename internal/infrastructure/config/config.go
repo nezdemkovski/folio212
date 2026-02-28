@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/nezdemkovski/folio212/internal/shared/constants"
 	"github.com/nezdemkovski/folio212/internal/shared/validation"
@@ -18,7 +19,10 @@ type Config struct {
 	Trading212APIKey string `mapstructure:"trading212_api_key" yaml:"trading212_api_key,omitempty"`
 }
 
-var cfg *Config
+var (
+	cfg   *Config
+	cfgMu sync.RWMutex
+)
 
 func Default() *Config {
 	return &Config{
@@ -44,6 +48,17 @@ func GetConfigPath() (string, error) {
 }
 
 func Load() (*Config, error) {
+	cfgMu.RLock()
+	if cfg != nil {
+		defer cfgMu.RUnlock()
+		return cfg, nil
+	}
+	cfgMu.RUnlock()
+
+	cfgMu.Lock()
+	defer cfgMu.Unlock()
+
+	// Double-check after acquiring write lock
 	if cfg != nil {
 		return cfg, nil
 	}
@@ -100,6 +115,8 @@ func Save(c *Config) error {
 		return fmt.Errorf("failed to write config file: %w", err)
 	}
 
+	cfgMu.Lock()
 	cfg = c
+	cfgMu.Unlock()
 	return nil
 }

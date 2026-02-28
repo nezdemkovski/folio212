@@ -126,15 +126,15 @@ func (c *Client) doJSON(ctx context.Context, method, path string, query url.Valu
 		req.Header.Set("User-Agent", c.userAgent)
 	}
 
-	for attempt := 0; attempt < 2; attempt++ {
+	for attempt := range 2 {
 		resp, err := c.http.Do(req)
 		if err != nil {
 			return err
 		}
-		defer resp.Body.Close()
 
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 			b, _ := io.ReadAll(io.LimitReader(resp.Body, 8*1024))
+			resp.Body.Close()
 
 			httpErr := &HTTPError{
 				Method:     method,
@@ -190,18 +190,21 @@ func (c *Client) doJSON(ctx context.Context, method, path string, query url.Valu
 
 		if out == nil {
 			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
 			return nil
 		}
 
 		dec := json.NewDecoder(resp.Body)
 		dec.DisallowUnknownFields()
 		if err := dec.Decode(out); err != nil {
+			resp.Body.Close()
 			var se *json.SyntaxError
 			if errors.As(err, &se) {
 				return fmt.Errorf("failed to decode JSON response (syntax error at byte %d): %w", se.Offset, err)
 			}
 			return fmt.Errorf("failed to decode JSON response: %w", err)
 		}
+		resp.Body.Close()
 		return nil
 	}
 

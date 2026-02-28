@@ -16,10 +16,7 @@ func HumanizeAccountError(err error) error {
 	}
 	if errors.As(err, &httpErr) && httpErr.StatusCode == 429 {
 		if d, ok := httpErr.SuggestedRetryDelay(time.Now()); ok {
-			secs := int(d.Round(time.Second).Seconds())
-			if secs < 1 {
-				secs = 1
-			}
+			secs := max(int(d.Round(time.Second).Seconds()), 1)
 			return fmt.Errorf("%w (rate limited: try again in ~%ds)", err, secs)
 		}
 		return fmt.Errorf("%w (rate limited: try again in a few seconds)", err)

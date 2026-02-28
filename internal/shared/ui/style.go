@@ -8,7 +8,7 @@
 // - Output must remain readable without color
 package ui
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 // =============================================================================
 // COLOR PALETTE (ANSI 256)

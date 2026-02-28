@@ -2,6 +2,7 @@ package portfolio
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"time"
@@ -156,16 +157,19 @@ func (s *Service) GetPortfolio(ctx context.Context, period PeriodRange, includeR
 	return output, nil
 }
 
+// moneyEpsilon is the smallest difference we consider significant for financial calculations.
+const moneyEpsilon = 0.01
+
 func (s *Service) reconcile(summary *trading212.AccountSummary, pieCash, freeCash, allocated float64) Reconciliation {
 	var warnings []string
 
 	accountTotal := summary.TotalValue
 
-	if diff := accountTotal - (freeCash + allocated); Abs(diff) > 0.01 {
+	if diff := accountTotal - (freeCash + allocated); Abs(diff) > moneyEpsilon {
 		warnings = append(warnings, fmt.Sprintf("account total does not reconcile (diff: %.2f %s)", diff, summary.Currency))
 	}
 
-	if diff := summary.Investments.CurrentValue - allocated; Abs(diff) > 0.01 {
+	if diff := summary.Investments.CurrentValue - allocated; Abs(diff) > moneyEpsilon {
 		warnings = append(warnings, fmt.Sprintf("investments allocated does not reconcile (diff: %.2f %s)", diff, summary.Currency))
 	}
 
@@ -177,7 +181,8 @@ func (s *Service) reconcile(summary *trading212.AccountSummary, pieCash, freeCas
 }
 
 func classifyAccountError(err error) error {
-	if httpErr, ok := err.(*trading212.HTTPError); ok && httpErr != nil {
+	var httpErr *trading212.HTTPError
+	if errors.As(err, &httpErr) {
 		if httpErr.StatusCode == 403 {
 			return fmt.Errorf("%w: %v", ErrMissingAccountDataPermission, err)
 		}
@@ -189,7 +194,8 @@ func classifyAccountError(err error) error {
 }
 
 func classifyPortfolioError(err error) error {
-	if httpErr, ok := err.(*trading212.HTTPError); ok && httpErr != nil {
+	var httpErr *trading212.HTTPError
+	if errors.As(err, &httpErr) {
 		if httpErr.StatusCode == 403 {
 			return fmt.Errorf("%w: %v", ErrMissingPortfolioPermission, err)
 		}

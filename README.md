@@ -1,12 +1,12 @@
 # folio212
 
-Check your Trading212 portfolio from the terminal.
+Check your Trading212 portfolio from the terminal. AI-first design.
 
 ## What it does
 
+- **AI-ready JSON export** - Pipe your portfolio data directly to AI assistants (Claude, ChatGPT, etc.) for instant analysis, rebalancing suggestions, or tax optimization
 - **Quick portfolio overview** - See all your holdings, allocations, and performance in one view
 - **Secure by default** - API secrets stored in your OS keyring (macOS Keychain, Windows Credential Manager, Linux Secret Service)
-- **JSON export** - Get your data in JSON format for further analysis
 - **Works everywhere** - Desktop, servers, Docker with environment variable fallback
 
 ## Quick start
@@ -95,6 +95,23 @@ Output includes:
 folio212 portfolio --json
 folio212 portfolio --json --include-raw  # Include raw API data
 ```
+
+### AI Analysis
+
+Send your portfolio data to AI for instant insights:
+
+```bash
+# Copy to clipboard and paste into Claude, ChatGPT, etc.
+folio212 portfolio --json | pbcopy  # macOS
+folio212 portfolio --json | xclip -selection clipboard  # Linux
+
+# Or pipe directly to AI CLI tools
+folio212 portfolio --json | llm "Analyze my portfolio and suggest rebalancing"
+folio212 portfolio --json | claude "What are the tax implications of my holdings?"
+folio212 portfolio --json | chatgpt "Compare my allocation to a 60/40 portfolio"
+```
+
+The JSON includes complete holdings data, performance metrics, and cost basis - everything an AI needs to provide meaningful analysis.
 
 ### Period filtering
 

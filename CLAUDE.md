@@ -7,7 +7,7 @@ This file provides guidance for Claude Code when working with this repository.
 A Trading212 portfolio checker CLI using Cobra for commands and Bubble Tea for terminal UI. Based on clean architecture patterns from `ndev`.
 
 **Module**: `github.com/nezdemkovski/folio212`
-**Go version**: 1.25.5
+**Go version**: 1.26
 
 ## Architecture
 
@@ -93,6 +93,7 @@ shared
 ```
 
 **Rules:**
+
 - `cmd` imports: `domain`, `presentation`, `infrastructure`
 - `presentation` imports: `domain`, `shared`
 - `domain` imports: `infrastructure` (for API clients), `shared`
@@ -157,9 +158,9 @@ Keyring operations have a 3-second timeout to prevent hanging.
 ## Key Dependencies
 
 - **github.com/spf13/cobra** - Command framework
-- **github.com/charmbracelet/bubbletea** - TUI framework
-- **github.com/charmbracelet/bubbles** - TUI components
-- **github.com/charmbracelet/huh** - Form components
-- **github.com/charmbracelet/lipgloss** - Styling
+- **charm.land/bubbletea/v2** - TUI framework
+- **charm.land/bubbles/v2** - TUI components (indirect, via huh)
+- **charm.land/huh/v2** - Form components
+- **charm.land/lipgloss/v2** - Styling
 - **github.com/spf13/viper** - Config management
 - **github.com/zalando/go-keyring** - OS keyring access

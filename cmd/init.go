@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/nezdemkovski/folio212/internal/presentation"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +15,6 @@ var initCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		p := tea.NewProgram(
 			presentation.NewInitModel(),
-			tea.WithAltScreen(),
 		)
 
 		finalModel, err := p.Run()
