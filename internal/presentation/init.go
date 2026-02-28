@@ -335,11 +335,12 @@ func RenderInitCompletion(cfg *config.Config, summary *trading212.AccountSummary
 	return ui.Container.Render(s.String())
 }
 
-// maskString masks a string, showing only the first and last 'visible' characters.
+// maskString masks a string, showing only the first and last 'visible' runes.
 // If the string is shorter than 2*visible+3, it returns "***".
 func maskString(s string, visible int) string {
-	if len(s) <= 2*visible+3 {
+	runes := []rune(s)
+	if len(runes) <= 2*visible+3 {
 		return "***"
 	}
-	return s[:visible] + "..." + s[len(s)-visible:]
+	return string(runes[:visible]) + "..." + string(runes[len(runes)-visible:])
 }
